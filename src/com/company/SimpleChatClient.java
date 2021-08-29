@@ -4,54 +4,86 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.*;
 
 public class SimpleChatClient {
+    JTextArea incoming;
     JTextField outgoing;
+    BufferedReader reader;
     PrintWriter writer;
     Socket socket;
 
-    public void go(){
+    public static void main(String[] args) {
+        new SimpleChatClient().go();
+    }
+
+    public void go() {
         JFrame jFrame = new JFrame("Simple chat client");
         JPanel mainPanel = new JPanel();
-        outgoing = new JTextField();
+        incoming = new JTextArea(15, 50);
+        incoming.setLineWrap(true);
+        incoming.setWrapStyleWord(true);
+        incoming.setEditable(false);
+        JScrollPane scroller = new JScrollPane(incoming);
+        outgoing = new JTextField(20);
         JButton sendButton = new JButton("Send");
-        sendButton.addActionListener( new SendButtonListener());
+        sendButton.addActionListener(new SendButtonListener());
         mainPanel.add(outgoing);
+        mainPanel.add(incoming);
         mainPanel.add(sendButton);
-        jFrame.getContentPane().add(BorderLayout.NORTH, mainPanel);
+
         setUpNetworking();
-        jFrame.setSize(400,400);
+
+        Thread readerThread = new Thread(new IncomingReader());
+        readerThread.start();
+
+        jFrame.getContentPane().add(BorderLayout.CENTER, mainPanel);
+        jFrame.setSize(400, 400);
         jFrame.setVisible(true);
 
     }
 
-    private void setUpNetworking(){
+    private void setUpNetworking() {
 
-        try{
+        try {
             socket = new Socket("127.0.0.1", 500);
             writer = new PrintWriter(socket.getOutputStream());
             System.out.println("networking established");
 
-        }catch (Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
-    public class SendButtonListener implements ActionListener{
+    public class SendButtonListener implements ActionListener {
 
-        public void actionPerformed(ActionEvent actionEvent){
+        public void actionPerformed(ActionEvent actionEvent) {
 
-            try{
+            try {
                 writer.println(outgoing.getText());
                 writer.flush();
 
-            }catch (Exception exception){
+            } catch (Exception exception) {
                 exception.printStackTrace();
             }
             outgoing.setText("");
             outgoing.requestFocus();
+        }
+    }
+
+    public class IncomingReader implements Runnable {
+        public void run() {
+            String message;
+            try{
+                while((message = reader.readLine())!= null){
+                    System.out.println("read"+ message);
+                    incoming.append(message+ "\n");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }

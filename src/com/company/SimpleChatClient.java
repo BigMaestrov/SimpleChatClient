@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
 
@@ -16,10 +17,12 @@ public class SimpleChatClient {
     Socket socket;
 
     public static void main(String[] args) {
-        new SimpleChatClient().go();
+        SimpleChatClient client = new SimpleChatClient();
+        client.go();
     }
 
     public void go() {
+
         JFrame jFrame = new JFrame("Simple chat client");
         JPanel mainPanel = new JPanel();
         incoming = new JTextArea(15, 50);
@@ -27,11 +30,13 @@ public class SimpleChatClient {
         incoming.setWrapStyleWord(true);
         incoming.setEditable(false);
         JScrollPane scroller = new JScrollPane(incoming);
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         outgoing = new JTextField(20);
         JButton sendButton = new JButton("Send");
         sendButton.addActionListener(new SendButtonListener());
+        mainPanel.add(scroller);
         mainPanel.add(outgoing);
-        mainPanel.add(incoming);
         mainPanel.add(sendButton);
 
         setUpNetworking();
@@ -48,7 +53,9 @@ public class SimpleChatClient {
     private void setUpNetworking() {
 
         try {
-            socket = new Socket("127.0.0.1", 500);
+            socket = new Socket("127.0.0.1", 5000);
+            InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+            reader = new BufferedReader(inputStreamReader);
             writer = new PrintWriter(socket.getOutputStream());
             System.out.println("networking established");
 

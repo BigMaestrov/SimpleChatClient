@@ -16,10 +16,7 @@ public class SimpleChatClient {
     PrintWriter writer;
     Socket socket;
 
-    public static void main(String[] args) {
-        SimpleChatClient client = new SimpleChatClient();
-        client.go();
-    }
+
 
     public void go() {
 

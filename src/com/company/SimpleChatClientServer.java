@@ -38,6 +38,7 @@ public class SimpleChatClientServer {
         }
     }
 
+
     public void go() {
         clientOutputStream = new ArrayList();
         try {
@@ -68,5 +69,4 @@ public class SimpleChatClientServer {
             }
         }
     }
-
 }
